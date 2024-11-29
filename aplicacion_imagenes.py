@@ -161,4 +161,11 @@ if username == "icbunab25" and password == "heridas":
                 kappa_2_3 = cohen_kappa_score(labels.iloc[:, 1], labels.iloc[:, 2])
                 average_kappa = np.mean([kappa_1_2, kappa_1_3, kappa_2_3])
                 st.write(f"Cohen's Kappa entre Cirujano y Dermatólogo: {kappa_1_2:.2f}")
-                st.write
+                st.write(f"Cohen's Kappa entre Cirujano y Enfermera: {kappa_1_3:.2f}")
+                st.write(f"Cohen's Kappa entre Dermatólogo y Enfermera: {kappa_2_3:.2f}")
+                st.write(f"Índice de Acuerdo Promedio (Cohen's Kappa): {average_kappa:.2f}")
+            else:
+                st.write("No hay suficientes datos para calcular el índice de acuerdo.")
+else:
+    st.error("Usuario o contraseña incorrectos. Por favor, intente de nuevo.")
+

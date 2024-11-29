@@ -8,21 +8,18 @@ from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
 import io
 import numpy as np
 from sklearn.metrics import cohen_kappa_score
+import json
+import requests
 
-# Google Drive API Setup
-SERVICE_ACCOUNT_INFO = {
-    "type": "service_account",
-    "project_id": "aplicacion-ica-icb-071024",
-    "private_key_id": "46e7f30ebaafa949d1f38ac4913f0b721241c142",
-    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDIOphXI/gZQEoA\nxKKTO45bYDK40dcDhq+AUZgLg6v0h9GaqAGUMaHtocSUaEU8RGLYc6Z8b68zezaD\nZv/gX5DI1XyDW/dBeuApwhFXe1OpW5AUKk4caxp2UFbWI2HPkbfAdANne0toPP5z\nEiGYRMylwIbq9l92YqIBwWiyxDy5LCsCKQ7kSbwWnsTLIFguoLcWbdtVvvOi2rLf\nEzo0qPpq2IutrqdJdXv/BCzK4l3A5j9YA3WAQNNNeEPY0gFJkjYUCc9zhuepGIOS\nD9XaNmA4lkosX4hjBLlYKtnMKTNiYdLxkAryEkI9fH+Vxy46DJk0LOCSPuy+33+p\nltmymBSbAgMBAAECggEAE4wU3zz1tZFfKCAKNxFzXlxP11c1BHUboQ1WKJmcKe0w\ne0a3kL4frtFCHbLoP2/1rmfr8u38TqxSsBVYGZF60wB0fWZ3Bv917t2xT7cMfdYg\nhLd0lLWoCbDiKVme7OKu66znwCx7OhvqQ1Wbzf+5ct0OztVqkGYkpsM482rQ+sq2\nmo5jI6cdaQ98Ocgxj9Xne84Q++5cT3h5OIRheW4KRsur5suP6VMD8it4SNYTIbVr\nRwv3tdUajfBReWqk+I2JFPLwpsFwqWhdPQIKI0YC5JX9aNfUTDWCwgGPy3YneOih\n9W2IvXsKcQcZkcWvSx04gH0uLkva1QXD0SkxtUAJUQKBgQD7/zeLxpJKwHmIKQb7\nEbLmI1cG4Zj8tcPPEL2mhZLxYnD4JHWt9r+eO+egs+BYrheekX2//MqNRClbRnrh\nfu68HCGn1cXjn8cIf4eVnUcyS5betSMnLc7uWwMtiyKImuw3eprVgzrxN1nLnAOr\n38+dUTt8MZsMFI5swTM2bLb7zwKBgQDLaNsJjnYuB0j04U1TgkMR8QbLF0P22lUK\nqJQTpshsOvuDwJ8Ou/x6Pl+XCoJ2E9NPXxSF/JZZHuFMNqB92mIcUdqlgftMGuH6\n5b9DJXsi8D5R0w4UYd8qzFOx0JfLi/8itFt5VWbibTni6llF+07YSXe6L2xgB66W\n6XgW5C3RdQKBgCW9YD0/vPMTBmB8/H2ndep/im4OZVIbirq9IBoLUSlze8W9+B3Y\noXP6NsNbjRLa59Coq3OQUWl8ttDjqk2RLAHiGKxBGMTxTeaY6t5eUqZWqb6q1Bvv\nAVmzKbOtbbuVsCDS7NNjNvWfO4SB1g7skvRVkRoVd8oEXhwthxT0jScDAoGAMF5e\nt4cI0ykoUBLDMHhpOnr2ApUltC12y3IKxCGExze/VzUWnYpWHzt1v5TgMPPF67nQ\nR4wotEiDinvy7fpgGhvcwj6GYzKBSggX0v+2qDg4mXx2fKJJTwQHYuEXN2+y263H\nkrKcJHuUqEDRubJorUXLEpr0SmGJQpmB1O+tdYECgYAebt2pdPhjTu9g6wO3H91P\naiDhH0+0xOCQot9FD0UgPvsv7aDHSkuqWsE8nLFRBQoH+AxQWYw/ScjIAgBe7Dl8\nt3QIRR+WXFe9dekpyKZ1bW6yHESXCScN/fet+On9La288lps6yDY/Gf2RKHR0B3Z\nlpd5jmMe1BKuI9g+orXhzg==\n-----END PRIVATE KEY-----\n",
-    "client_email": "streamlit-drive-access@aplicacion-ica-icb-071024.iam.gserviceaccount.com",
-    "client_id": "113339940456940358273",
-    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-    "token_uri": "https://oauth2.googleapis.com/token",
-    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/streamlit-drive-access%40aplicacion-ica-icb-071024.iam.gserviceaccount.com",
-    "universe_domain": "googleapis.com"
-}
+# Load service account credentials securely
+SERVICE_ACCOUNT_FILE_URL = "https://raw.githubusercontent.com/tu_usuario/tu_repositorio_privado/main/service_account.json"
+response = requests.get(SERVICE_ACCOUNT_FILE_URL)
+if response.status_code == 200:
+    SERVICE_ACCOUNT_INFO = json.loads(response.content)
+else:
+    st.error("No se pudo cargar el archivo de credenciales desde GitHub.")
+    st.stop()
+
 SCOPES = ["https://www.googleapis.com/auth/drive"]
 credentials = service_account.Credentials.from_service_account_info(SERVICE_ACCOUNT_INFO, scopes=SCOPES)
 drive_service = build('drive', 'v3', credentials=credentials)
@@ -152,7 +149,7 @@ if username == "icbunab25" and password == "heridas":
         st.subheader("Características de las Heridas Alteradas")
         st.dataframe(additional_labels_table)
         additional_labels_table.to_csv("additional_labels_table.csv")
-        upload_file_to_drive("additional_labels_table.csv", "additional_labels_table.csv", "YOUR_DRIVE_FOLDER_ID")
+        upload_file_to_drive("additional_labels_table.csv", "additional_labels_table.csv", "1ee1fWDPfGklA7C1894VaAfa5P0-duNCl")
 
         # Calculate inter-expert agreement after all images are classified
         if len(classification_table.columns) == 3:
@@ -164,10 +161,4 @@ if username == "icbunab25" and password == "heridas":
                 kappa_2_3 = cohen_kappa_score(labels.iloc[:, 1], labels.iloc[:, 2])
                 average_kappa = np.mean([kappa_1_2, kappa_1_3, kappa_2_3])
                 st.write(f"Cohen's Kappa entre Cirujano y Dermatólogo: {kappa_1_2:.2f}")
-                st.write(f"Cohen's Kappa entre Cirujano y Enfermera: {kappa_1_3:.2f}")
-                st.write(f"Cohen's Kappa entre Dermatólogo y Enfermera: {kappa_2_3:.2f}")
-                st.write(f"Índice de Acuerdo Promedio (Cohen's Kappa): {average_kappa:.2f}")
-            else:
-                st.write("No hay suficientes datos para calcular el índice de acuerdo.")
-else:
-    st.error("Usuario o contraseña incorrectos. Por favor, intente de nuevo.")
+                st.write

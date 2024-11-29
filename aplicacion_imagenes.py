@@ -11,13 +11,15 @@ from sklearn.metrics import cohen_kappa_score
 import json
 import requests
 
-# Load service account credentials securely
+# Load service account credentials securely using GitHub token
+GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]  # Store your GitHub token in Streamlit secrets
 SERVICE_ACCOUNT_FILE_URL = "https://raw.githubusercontent.com/tu_usuario/tu_repositorio_privado/main/service_account.json"
-response = requests.get(SERVICE_ACCOUNT_FILE_URL)
+headers = {"Authorization": f"token {GITHUB_TOKEN}"}
+response = requests.get(SERVICE_ACCOUNT_FILE_URL, headers=headers)
 if response.status_code == 200:
     SERVICE_ACCOUNT_INFO = json.loads(response.content)
 else:
-    st.error("No se pudo cargar el archivo de credenciales desde GitHub.")
+    st.error("No se pudo cargar el archivo de credenciales desde GitHub. Verifique el enlace y el token de acceso.")
     st.stop()
 
 SCOPES = ["https://www.googleapis.com/auth/drive"]

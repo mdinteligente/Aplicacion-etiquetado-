@@ -12,14 +12,14 @@ import json
 import requests
 
 # Load service account credentials securely using GitHub token
-GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]  # Store your GitHub token in Streamlit secrets
+GITHUB_TOKEN = st.secrets.get("GITHUB_TOKEN")  # Store your GitHub token in Streamlit secrets
 SERVICE_ACCOUNT_FILE_URL = "https://raw.githubusercontent.com/tu_usuario/tu_repositorio_privado/main/service_account.json"
 headers = {"Authorization": f"token {GITHUB_TOKEN}"}
 response = requests.get(SERVICE_ACCOUNT_FILE_URL, headers=headers)
-if response.status_code == 200:
+if response.status_code == 200 and GITHUB_TOKEN is not None:
     SERVICE_ACCOUNT_INFO = json.loads(response.content)
 else:
-    st.error("No se pudo cargar el archivo de credenciales desde GitHub. Verifique el enlace y el token de acceso.")
+    st.error("No se pudo cargar el archivo de credenciales desde GitHub. Verifique el enlace, el token de acceso, y asegúrese de que el token esté configurado en los secretos de Streamlit.")
     st.stop()
 
 SCOPES = ["https://www.googleapis.com/auth/drive"]
